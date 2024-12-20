@@ -16,6 +16,21 @@ pub mod token {
         CBoolean,
         Number,
         Boolean,
+        Plus,
+        Minus,
+        Times,
+        Div,
+        Gt,
+        Gte,
+        Lt,
+        Lte,
+        Eq,
+        Not,
+        And,
+        Or,
+        Xor,
+        Let,
+        In
     }
 
     // Token value

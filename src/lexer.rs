@@ -27,19 +27,35 @@ fn value_bool_t(_: &str) -> TokenValue { TokenValue::Boolean(true) }
 fn value_bool_f(_: &str) -> TokenValue { TokenValue::Boolean(false) }
 
 // Number to available tokens
-const TOKEN_COUNT: usize = 13;
+const TOKEN_COUNT: usize = 28;
 
 // Tokens
 const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     // Keywords
     (reg!(r"\\"), VariantOption::Some(Variant::Lambda, value_none)),
     (reg!(r"\."), VariantOption::Some(Variant::Dot, value_none)),
+    (reg!(r"let"), VariantOption::Some(Variant::Let, value_none)),
+    (reg!(r"in"), VariantOption::Some(Variant::In, value_none)),
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
     (reg!(r"truec"), VariantOption::Some(Variant::CBoolean, value_bool_t)),
     (reg!(r"falsec"), VariantOption::Some(Variant::CBoolean, value_bool_f)),
     (reg!(r"true"), VariantOption::Some(Variant::Boolean, value_bool_t)),
     (reg!(r"false"), VariantOption::Some(Variant::Boolean, value_bool_f)),
+    // Operators
+    (reg!(r"\+"), VariantOption::Some(Variant::Plus, value_none)),
+    (reg!(r"-"), VariantOption::Some(Variant::Minus, value_none)),
+    (reg!(r"\*"), VariantOption::Some(Variant::Times, value_none)),
+    (reg!(r"/"), VariantOption::Some(Variant::Div, value_none)),
+    (reg!(r"="), VariantOption::Some(Variant::Eq, value_none)),
+    (reg!(r">="), VariantOption::Some(Variant::Gt, value_none)),
+    (reg!(r">"), VariantOption::Some(Variant::Gte, value_none)),
+    (reg!(r"<="), VariantOption::Some(Variant::Lt, value_none)),
+    (reg!(r"<"), VariantOption::Some(Variant::Lte, value_none)),
+    (reg!(r"!"), VariantOption::Some(Variant::Not, value_none)),
+    (reg!(r"&"), VariantOption::Some(Variant::And, value_none)),
+    (reg!(r"\|"), VariantOption::Some(Variant::Or, value_none)),
+    (reg!(r"\^"), VariantOption::Some(Variant::Xor, value_none)),
     // Numbers
     (reg!(r"[0-9]+c"), VariantOption::Some(Variant::CNumber, value_church)),
     (reg!(r"[0-9]+"), VariantOption::Some(Variant::Number, value_number)),
@@ -50,7 +66,7 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"\s+"), VariantOption::None),
 ];
 
-// Lexer object
+// Lexer object (singleton)
 pub struct Lexer {
     pos: usize,
     row: usize,
