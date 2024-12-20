@@ -7,6 +7,8 @@ use std::io;
 use std::fs;
 use std::process;
 
+// Macros
+
 macro_rules! lex {
     ($e1: expr, $e2: expr) => {
         match $e1.generate($e2) {
@@ -19,17 +21,20 @@ macro_rules! lex {
     }
 }
 
+// Argument parser
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+enum Program {
+    Lex,
+    Parse,
+    Script
+}
+
 #[derive(Parser, Debug)]
 #[command(version, about = "Lambda calculus evaluator", long_about = None)]
 struct Args {
-    #[arg(long, group="program", help="Run in lexer mode.")]
-    lex: bool,
-
-    #[arg(long, group="program", help="Run in parse mode.")]
-    parse: bool,
-
-    #[arg(long, group="program", help="Run in script mode. Default mode if no run flags are set.")]
-    script: bool,
+    #[arg(value_enum, long, default_value_t=Program::Script, help="Select a part of the program to run.")]
+    program: Program,
 
     #[arg(help="Path to program file. Use stdin if not specified.")]
     fname: Option<String>
@@ -65,18 +70,20 @@ fn main() {
     let mut lex = lexer::Lexer::new();
 
     // Run lexer program
-    if args.lex {
-        // Generate lexer output
-        let lexer_out = lex!(lex, &input);
-        // Print token stream
-        printing::print_token_stream(&lexer_out)
-    } 
-    // Run parser program
-    else if args.parse {
+    match args.program{
+        Program::Lex => {
+            // Generate lexer output
+            let lexer_out = lex!(lex, &input);
+            // Print token stream
+            printing::print_token_stream(&lexer_out)
+        },
+        // Run parser program
+        Program::Parse => {
 
-    } 
-    // Run evaluator program
-    else {
+        },
+        // Run evaluator program
+        Program::Script => {
 
+        }
     }
 }
