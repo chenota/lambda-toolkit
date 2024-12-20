@@ -31,7 +31,7 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"\."), VariantOption::Some(Variant::Dot, value_none)),
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
-    (reg!(r"([a-z][A-Z])+"), VariantOption::Some(Variant::Ident, value_ident)),
+    (reg!(r"[a-zA-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),
     (reg!(r"\n"), VariantOption::Newline),
     (reg!(r"\s+"), VariantOption::None),
 ];
