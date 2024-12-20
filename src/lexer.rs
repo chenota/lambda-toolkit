@@ -22,18 +22,30 @@ enum VariantOption {
 fn value_none(_: &str) -> TokenValue { TokenValue::None }
 fn value_ident(x: &str) -> TokenValue { TokenValue::Str(x.to_string()) }
 fn value_church(x: &str) -> TokenValue { TokenValue::Number(x[..x.len()-1].parse::<u128>().unwrap()) }
+fn value_number(x: &str) -> TokenValue { TokenValue::Number(x.parse::<u128>().unwrap()) }
+fn value_bool_t(_: &str) -> TokenValue { TokenValue::Boolean(true) }
+fn value_bool_f(_: &str) -> TokenValue { TokenValue::Boolean(false) }
 
 // Number to available tokens
-const TOKEN_COUNT: usize = 8;
+const TOKEN_COUNT: usize = 13;
 
 // Tokens
 const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
+    // Keywords
     (reg!(r"\\"), VariantOption::Some(Variant::Lambda, value_none)),
     (reg!(r"\."), VariantOption::Some(Variant::Dot, value_none)),
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
-    (reg!(r"[a-zA-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),
+    (reg!(r"truec"), VariantOption::Some(Variant::CBoolean, value_bool_t)),
+    (reg!(r"falsec"), VariantOption::Some(Variant::CBoolean, value_bool_f)),
+    (reg!(r"true"), VariantOption::Some(Variant::Boolean, value_bool_t)),
+    (reg!(r"false"), VariantOption::Some(Variant::Boolean, value_bool_f)),
+    // Numbers
     (reg!(r"[0-9]+c"), VariantOption::Some(Variant::CNumber, value_church)),
+    (reg!(r"[0-9]+"), VariantOption::Some(Variant::Number, value_number)),
+    // Identifiers
+    (reg!(r"[a-zA-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),
+    // Special
     (reg!(r"\n"), VariantOption::Newline),
     (reg!(r"\s+"), VariantOption::None),
 ];

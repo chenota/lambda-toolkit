@@ -17,13 +17,34 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
                 };
                 "IDENT(".to_string() + s + ")"
             },
-            token::Variant::Church => {
+            token::Variant::CNumber => {
                 let s = match &t.1 {
                     token::TokenValue::Number(n) => &n.to_string(),
                     _ => "ERR"
                 };
-                "CHURCH(".to_string() + s + ")"
-            }
+                "CNUMBER(".to_string() + s + ")"
+            },
+            token::Variant::Number => {
+                let s = match &t.1 {
+                    token::TokenValue::Number(n) => &n.to_string(),
+                    _ => "ERR"
+                };
+                "NUMBER(".to_string() + s + ")"
+            },
+            token::Variant::CBoolean => {
+                let s = match &t.1 {
+                    token::TokenValue::Boolean(b) => if *b {"true"} else {"false"},
+                    _ => "ERR"
+                };
+                "CBOOLEAN(".to_string() + s + ")"
+            },
+            token::Variant::Boolean => {
+                let s = match &t.1 {
+                    token::TokenValue::Boolean(b) => if *b {"true"} else {"false"},
+                    _ => "ERR"
+                };
+                "BOOLEAN(".to_string() + s + ")"
+            },
         });
         // Print semicolon and space
         if i < stream.len() - 1 {

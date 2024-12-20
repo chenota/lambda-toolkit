@@ -22,6 +22,7 @@ pub mod token {
     pub enum TokenValue {
         Str(String),
         Number(u128),
+        Boolean(bool),
         None
     }
     // Position stores row and column
