@@ -65,7 +65,8 @@ pub mod token {
         Or,
         Xor,
         Let,
-        In
+        In,
+        Unit
     }
 
     #[derive(Clone)]

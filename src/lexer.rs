@@ -27,7 +27,7 @@ fn value_bool_t(_: &str) -> TokenValue { TokenValue::Boolean(true) }
 fn value_bool_f(_: &str) -> TokenValue { TokenValue::Boolean(false) }
 
 // Number to available tokens
-const TOKEN_COUNT: usize = 28;
+const TOKEN_COUNT: usize = 29;
 
 // Tokens
 const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
@@ -42,6 +42,7 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"falsec"), VariantOption::Some(Variant::CBoolean, value_bool_f)),
     (reg!(r"true"), VariantOption::Some(Variant::Boolean, value_bool_t)),
     (reg!(r"false"), VariantOption::Some(Variant::Boolean, value_bool_f)),
+    (reg!(r"_"), VariantOption::Some(Variant::Unit, value_none)),
     // Operators
     (reg!(r"\+"), VariantOption::Some(Variant::Plus, value_none)),
     (reg!(r"-"), VariantOption::Some(Variant::Minus, value_none)),
