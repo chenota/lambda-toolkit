@@ -6,6 +6,8 @@ pub mod ast {
     pub enum Expression {
         UopExpr(Uop, Box<Expression>),
         BopExpr(Bop, Box<Expression>, Box<Expression>),
+        ApplicationExpr(Vec<Expression>),
+        FuncExpr(Vec<Option<String>>, Box<Expression>),
         ValExpr(Value)
     }
 
