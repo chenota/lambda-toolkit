@@ -13,9 +13,16 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
             token::Variant::Ident => {
                 let s = match &t.1 {
                     token::TokenValue::Str(s) => s,
-                    _ => ""
+                    _ => "ERR"
                 };
                 "IDENT(".to_string() + s + ")"
+            },
+            token::Variant::Church => {
+                let s = match &t.1 {
+                    token::TokenValue::Number(n) => &n.to_string(),
+                    _ => "ERR"
+                };
+                "CHURCH(".to_string() + s + ")"
             }
         });
         // Print semicolon and space

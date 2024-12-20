@@ -12,11 +12,16 @@ pub mod token {
         RParen,
         Ident,
         EOF,
+        CNumber,
+        CBoolean,
+        Number,
+        Boolean,
     }
 
     // Token value
     pub enum TokenValue {
         Str(String),
+        Number(u128),
         None
     }
     // Position stores row and column

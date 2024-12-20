@@ -21,9 +21,10 @@ enum VariantOption {
 // Value constructor functions
 fn value_none(_: &str) -> TokenValue { TokenValue::None }
 fn value_ident(x: &str) -> TokenValue { TokenValue::Str(x.to_string()) }
+fn value_church(x: &str) -> TokenValue { TokenValue::Number(x[..x.len()-1].parse::<u128>().unwrap()) }
 
 // Number to available tokens
-const TOKEN_COUNT: usize = 7;
+const TOKEN_COUNT: usize = 8;
 
 // Tokens
 const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
@@ -32,6 +33,7 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
     (reg!(r"[a-zA-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),
+    (reg!(r"[0-9]+c"), VariantOption::Some(Variant::CNumber, value_church)),
     (reg!(r"\n"), VariantOption::Newline),
     (reg!(r"\s+"), VariantOption::None),
 ];
