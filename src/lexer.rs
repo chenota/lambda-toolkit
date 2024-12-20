@@ -134,7 +134,7 @@ impl Lexer {
                 None => {
                     // If current position = old position, error
                     if self.pos == old_pos {
-                        return Err("Unexpected token at line ".to_string() + self.row.to_string().as_ref() + ", character " + self.col.to_string().as_ref())
+                        return Err("Unexpected character at line ".to_string() + self.row.to_string().as_ref() + ", character " + self.col.to_string().as_ref())
                     }
                 }
             }
