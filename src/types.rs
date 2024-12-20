@@ -11,14 +11,16 @@ pub mod token {
         RParen,
         Ident,
     }
-    pub enum Value {
+
+    // Token value
+    pub enum TokenValue {
         Str(String),
         None
     }
     // Position stores row and column
     pub type Position = (u64, u64);
     // Tuple of both
-    pub type Token = (Variant, Position);
+    pub type Token = (Variant, TokenValue, Position);
 }
 
 pub mod eval {
