@@ -36,7 +36,7 @@ struct Args {
     #[arg(value_enum, long, default_value_t=Program::Script, help="Select a part of the program to run.")]
     program: Program,
 
-    #[arg(help="Path to program file. Use stdin if not specified.")]
+    #[arg(help="Optional path to program file. Use stdin if not specified.")]
     fname: Option<String>
 }
 
