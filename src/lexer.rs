@@ -68,7 +68,7 @@ impl Lexer {
         let mut longest_variant: usize = 0;
         // Iterate through each token, find longest match
         for (i, token_def) in self.tokens.iter().enumerate() {
-            match token_def.0.find_at(stream, self.pos) {
+            match token_def.0.find(&stream[self.pos..]) {
                 Some(m) => {
                     if m.len() > longest_match {
                         longest_match = m.len();
@@ -108,7 +108,6 @@ impl Lexer {
         }
         // Did not find token, return none
         else {
-            println!("{}", &stream[self.pos..]);
             None
         }
     }
