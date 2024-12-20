@@ -4,12 +4,14 @@ pub mod ast {
 
 pub mod token {
     // Token variant
+    #[derive(Clone)]
     pub enum Variant {
         Lambda,
         Dot,
         LParen,
         RParen,
         Ident,
+        EOF,
     }
 
     // Token value
@@ -18,7 +20,7 @@ pub mod token {
         None
     }
     // Position stores row and column
-    pub type Position = (u64, u64);
+    pub type Position = (usize, usize);
     // Tuple of both
     pub type Token = (Variant, TokenValue, Position);
 }
