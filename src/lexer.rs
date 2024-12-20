@@ -122,6 +122,10 @@ impl Lexer {
         let mut tokens: Vec<Token> = Vec::new();
         // Iterate through stream
         loop {
+            // If reached end of stream, break
+            if self.pos >= stream.len() {
+                break
+            }
             // Save old position
             let old_pos = self.pos;
             // Generate next token
@@ -138,10 +142,6 @@ impl Lexer {
                         return Err("Unexpected character at ".to_string() + self.row.to_string().as_ref() + ":" + self.col.to_string().as_ref())
                     }
                 }
-            }
-            // If reached end of stream, break
-            if self.pos >= stream.len() {
-                break
             }
         }
         // Add EOF to end of stream
