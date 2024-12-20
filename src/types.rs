@@ -10,7 +10,7 @@ pub mod ast {
     }
 
     pub enum Value {
-        String(String),
+        Identifier(String),
         Number(u128),
         Boolean(bool),
         Unit
