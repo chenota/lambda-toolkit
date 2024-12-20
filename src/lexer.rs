@@ -168,7 +168,7 @@ impl Lexer {
                 None => {
                     // If current position = old position, error
                     if self.pos == old_pos {
-                        return Err("Unexpected character at ".to_string() + self.row.to_string().as_ref() + ":" + self.col.to_string().as_ref())
+                        return Err("Unexpected character at ".to_string() + (self.row + 1).to_string().as_ref() + ":" + (self.col + 1).to_string().as_ref())
                     }
                 }
             }
