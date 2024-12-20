@@ -2,7 +2,7 @@ use crate::types::token;
 
 pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
     print!("[");
-    for t in stream {
+    for (i, t) in stream.iter().enumerate() {
         // Print token
         print!("{}", match t.0 {
             token::Variant::Lambda => "LAMBDA".to_string(),
@@ -19,7 +19,9 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
             }
         });
         // Print semicolon and space
-        print!("; ")
+        if i < stream.len() - 1 {
+            print!("; ")
+        }
     }
     println!("]")
 }
