@@ -1,6 +1,7 @@
 mod types;
 mod lexer;
 mod printing;
+mod parser;
 
 use clap::Parser;
 use std::io;

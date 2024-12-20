@@ -1,10 +1,45 @@
 pub mod ast {
+    pub type Program = (Vec<Statement>, Expression);
 
+    pub type Statement = (String, Expression);
+
+    pub enum Expression {
+        UopExpr(Uop, Box<Expression>),
+        BopExpr(Bop, Box<Expression>, Box<Expression>),
+        ValExpr(Value)
+    }
+
+    pub enum Value {
+        String(String),
+        Number(u128),
+        Boolean(bool),
+        Unit
+    }
+
+    pub enum Uop {
+        NegUop,
+        NotUop,
+    }
+
+    pub enum Bop {
+        PlusBop,
+        MinusBop,
+        TimesBop,
+        DivBop,
+        GtBop,
+        GteBop,
+        LtBop,
+        LteBop,
+        EqBop,
+        AndBop,
+        OrBop,
+        XorBop
+    }
 }
 
 pub mod token {
     // Token variant
-    #[derive(Clone)]
+    #[derive(Clone, PartialEq)]
     pub enum Variant {
         Lambda,
         Dot,
@@ -33,6 +68,7 @@ pub mod token {
         In
     }
 
+    #[derive(Clone)]
     // Token value
     pub enum TokenValue {
         Str(String),
