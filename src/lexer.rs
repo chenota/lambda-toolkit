@@ -31,9 +31,9 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"\."), VariantOption::Some(Variant::Dot, value_none)),
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
-    (reg!(r"[a-z][A-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),
+    (reg!(r"([a-z][A-Z])+"), VariantOption::Some(Variant::Ident, value_ident)),
     (reg!(r"\n"), VariantOption::Newline),
-    (reg!(r"(\s)+"), VariantOption::None),
+    (reg!(r"\s+"), VariantOption::None),
 ];
 
 // Lexer object
@@ -90,7 +90,7 @@ impl Lexer {
                 VariantOption::Some(var, producer) => {
                     Some((
                         var.clone(), // Token variant
-                        producer(&stream[self.pos..self.pos+longest_match]), // Token value
+                        producer(&stream[(self.pos-longest_match)..self.pos]), // Token value
                         (self.row, self.col - longest_match) // Token position (need to revert to old col)
                     ))
                 },
@@ -108,6 +108,7 @@ impl Lexer {
         }
         // Did not find token, return none
         else {
+            println!("{}", &stream[self.pos..]);
             None
         }
     }
@@ -134,7 +135,7 @@ impl Lexer {
                 None => {
                     // If current position = old position, error
                     if self.pos == old_pos {
-                        return Err("Unexpected character at line ".to_string() + self.row.to_string().as_ref() + ", character " + self.col.to_string().as_ref())
+                        return Err("Unexpected character at ".to_string() + self.row.to_string().as_ref() + ":" + self.col.to_string().as_ref())
                     }
                 }
             }
