@@ -28,7 +28,7 @@ const ARITHMETIC_OPS: [(Variant, Bop); 4] = [
 ];
 
 // Parser
-struct Parser {
+pub struct Parser {
     pos: usize,
     tokens: Vec<Token>
 }
@@ -67,6 +67,14 @@ impl Parser {
     fn err_msg(&self) -> String {
         let t_pos = self.peek_token().2;
         "Syntax error at ".to_string() + t_pos.0.to_string().as_ref() + ":" + t_pos.1.to_string().as_ref()
+    }
+    // Parse
+    pub fn parse_program(&mut self, tokens: Vec<Token>) -> Result<Program, String> {
+        // Set up parse
+        self.tokens = tokens;
+        self.reset(0);
+        // Parse
+        self.program()
     }
     // Parsing rules
     fn program(&mut self) -> Result<Program, String> {

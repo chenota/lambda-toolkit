@@ -21,7 +21,6 @@ enum VariantOption {
 // Value constructor functions
 fn value_none(_: &str) -> TokenValue { TokenValue::None }
 fn value_ident(x: &str) -> TokenValue { TokenValue::Str(x.to_string()) }
-fn value_church(x: &str) -> TokenValue { TokenValue::Number(x[..x.len()-1].parse::<u128>().unwrap()) }
 fn value_number(x: &str) -> TokenValue { TokenValue::Number(x.parse::<u128>().unwrap()) }
 fn value_bool_t(_: &str) -> TokenValue { TokenValue::Boolean(true) }
 fn value_bool_f(_: &str) -> TokenValue { TokenValue::Boolean(false) }

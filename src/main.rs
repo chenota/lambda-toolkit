@@ -22,6 +22,18 @@ macro_rules! lex {
     }
 }
 
+macro_rules! parse {
+    ($e1: expr, $e2: expr) => {
+        match $e1.parse_program($e2) {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("{}", e);
+                process::exit(1)
+            }
+        }
+    }
+}
+
 // Argument parser
 
 #[derive(clap::ValueEnum, Clone, Debug)]
@@ -69,6 +81,8 @@ fn main() {
 
     // Create lexer
     let mut lex = lexer::Lexer::new();
+    // Create parser
+    let mut parse = parser::Parser::new();
 
     // Run lexer program
     match args.program{
@@ -80,7 +94,12 @@ fn main() {
         },
         // Run parser program
         Program::Parse => {
-
+            // Generate lexer output
+            let lexer_out = lex!(lex, &input);
+            // Generate parser output
+            let parser_out = parse!(parse, lexer_out);
+            // Print abstract syntax tree
+            printing::print_program(&parser_out);
         },
         // Run evaluator program
         Program::Script => {
