@@ -61,25 +61,22 @@ fn print_level(level: usize) {
     for _ in 0..level { print!("| ") }
 }
 
-fn print_string(tree: &String, level: usize) {
-    // Print level
-    print_level(level);
-    // Print line
-    print!("{}", tree);
-}
-
-fn print_str(tree: &str, level: usize) {
-    // Print level
-    print_level(level);
-    // Print line
-    print!("{}", tree);
-}
-
 fn print_operator(tree: &str, level: usize) {
     // Print level
     print_level(level);
     // Print wrapper
     print!("Operator(");
+    // Print line
+    print!("{}", tree);
+    // Print closing paren
+    print!(")")
+}
+
+fn print_var(tree: &str, level: usize) {
+    // Print level
+    print_level(level);
+    // Print wrapper
+    print!("Var(");
     // Print line
     print!("{}", tree);
     // Print closing paren
@@ -110,7 +107,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
     match tree {
         ast::Expression::ApplicationExpr(elist) => {
             // Header
-            println!("ApplicationExpr");
+            println!("Application Chain");
             // Print list of applications
             for (i, ex) in elist.iter().enumerate() { 
                 print_expression(ex, level + 1);
@@ -120,7 +117,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
         },
         ast::Expression::BopExpr(b, e1, e2) => {
             // Header
-            println!("BopExpr");
+            println!("Binary Operation");
             // Operator
             print_operator(match b {
                 ast::Bop::AndBop => "&",
@@ -146,7 +143,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
         },
         ast::Expression::UopExpr(u, e) => {
             // Header
-            println!("UopExpr");
+            println!("Unary Operation");
             // Operator
             print_operator(match u {
                 ast::Uop::NegUop => "-",
@@ -159,7 +156,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
         },
         ast::Expression::FuncExpr(ilist, body) => {
             // Header
-            println!("FuncExpr");
+            println!("Function Definition");
             // Parameters
             print_parameters(ilist, level + 1);
             // Newline
@@ -196,9 +193,11 @@ fn print_statement(tree: &ast::Statement, level: usize) {
     println!("Let");
     // Identifier
     match &tree.0 {
-        Some(s) => print_string(s, level + 1),
-        None => print_str("_", level + 1)
+        Some(s) => print_var(s, level + 1),
+        None => print_var("_", level + 1)
     };
+    // Newline
+    println!();
     // Expression
     print_expression(&tree.1, level + 1);
 }
