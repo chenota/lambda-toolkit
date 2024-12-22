@@ -208,6 +208,14 @@ impl Parser {
         Ok(match self.get_token().0 {
             Variant::Not => Expression::UopExpr(Uop::NotUop, Box::new(self.e5()?)),
             Variant::Minus => Expression::UopExpr(Uop::NegUop, Box::new(self.e5()?)),
+            Variant::LParen => {
+                // Parse expression
+                let e = self.expression()?;
+                // Exect rparen
+                self.expect(Variant::RParen)?;
+                // Return
+                e
+            }
             _ => {
                 self.reset(pos);
                 Expression::ValExpr(self.value()?)
