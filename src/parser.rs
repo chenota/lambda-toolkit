@@ -74,6 +74,8 @@ impl Parser {
         let slist = self.stmtlist()?;
         // Expression
         let e = self.expression()?;
+        // Expect EOF
+        self.expect(Variant::EOF)?;
         // Put together
         Ok((slist, e))
     }
