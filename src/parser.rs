@@ -101,6 +101,55 @@ impl Parser {
         let t_pos = self.peek_token().2;
         "Syntax error at ".to_string() + t_pos.0.to_string().as_ref() + ":" + t_pos.1.to_string().as_ref()
     }
+    // Parse binary operators
+    fn parse_bops(&mut self, oplist: &[(Variant, Bop)], f1: fn(&mut Self) -> Result<Expression, String>, f2: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
+        if self.right {
+            self.parse_bops_right(oplist, f1, f2)
+        } else {
+            self.parse_bops_left(oplist, f1)
+        }
+    }
+    fn parse_bops_left(&mut self, oplist: &[(Variant, Bop)], f: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
+        // Parse
+        let head = f(self)?;
+        // List of expressions
+        let mut expr_list= Vec::new();
+        // Consume until can't
+        loop {
+            // Mark position
+            let pos = self.mark();
+            // Pop token variant
+            let peek_var = self.get_token().0;
+            // Parse expression after and symbol if exists, otherwise if no and symbol break
+            match oplist.iter().position(|r| r.0 == peek_var) {
+                Some(i) => {
+                    // Push operator and following expression
+                    expr_list.push((oplist[i].1.clone(), f(self)?));
+                },
+                None => {
+                    self.reset(pos);
+                    break
+                }
+            }
+        };
+        // If nothing, return first item
+        if expr_list.len() <= 0 {
+            Ok(head)
+        }
+        // If found exprs, glue together as left associative
+        else {
+            Ok(
+                expr_list
+                    // Use a drain since never using original list again
+                    .drain(0..)
+                    // Fold left to apply in leftmost manner
+                    .fold(
+                        head, 
+                        |acc, val| Expression::BopExpr(val.0, Box::new(acc), Box::new(val.1))
+                    )
+            )
+        }
+    }
     // Parse
     pub fn parse_program(&mut self, tokens: Vec<Token>) -> Result<Program, String> {
         // Set up parse
@@ -195,81 +244,59 @@ impl Parser {
             // If error, parse binary operators
             _ => {
                 if self.noprec {
-                    self.parse_bops(&OP_ALL, Self::e9)
+                    self.parse_bops(&OP_ALL, Self::e9, Self::e1)
                 } else {
                     self.e2()
                 }
             }
         }
     }
-    fn parse_bops(&mut self, oplist: &[(Variant, Bop)], f: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
+    fn parse_bops_right(&mut self, oplist: &[(Variant, Bop)], f1: fn(&mut Self) -> Result<Expression, String>, f2: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
         // Parse
-        let head = f(self)?;
-        // List of expressions
-        let mut expr_list= Vec::new();
-        // Consume until can't
-        loop {
-            // Mark position
-            let pos = self.mark();
-            // Pop token variant
-            let peek_var = self.get_token().0;
-            // Parse expression after and symbol if exists, otherwise if no and symbol break
-            match oplist.iter().position(|r| r.0 == peek_var) {
-                Some(i) => {
-                    // Push operator and following expression
-                    expr_list.push((oplist[i].1.clone(), f(self)?));
-                },
-                None => {
-                    self.reset(pos);
-                    break
-                }
+        let head = f1(self)?;
+        // Mark current position
+        let pos = self.mark();
+        // Pop next token
+        let peek_var = self.get_token().0;
+        // Is it in the operators to look for?
+        match oplist.iter().position(|r| r.0 == peek_var) {
+            Some(i) => {
+                // Generate expression
+                Ok(Expression::BopExpr(oplist[i].1.clone(), Box::new(head), Box::new(f2(self)?)))
+            },
+            None => {
+                self.reset(pos);
+                Ok(head)
             }
-        };
-        // If nothing, return first item
-        if expr_list.len() <= 0 {
-            Ok(head)
-        }
-        // If found exprs, glue together as left associative
-        else {
-            Ok(
-                expr_list
-                    // Use a drain since never using original list again
-                    .drain(0..)
-                    // Fold left to apply in leftmost manner
-                    .fold(
-                        head, 
-                        |acc, val| Expression::BopExpr(val.0, Box::new(acc), Box::new(val.1))
-                    )
-            )
         }
     }
     fn e2(&mut self) -> Result<Expression, String> {
         // Parse logical operators
-        self.parse_bops(&LOGICAL_LOW, Self::e3)
+        self.parse_bops(&LOGICAL_LOW, Self::e3, Self::e2)
     }
     fn e3(&mut self) -> Result<Expression, String> {
         // Parse logical operators
-        self.parse_bops(&LOGICAL_MEDIUM, Self::e4)
+        self.parse_bops(&LOGICAL_MEDIUM, Self::e4, Self::e3)
     }
     fn e4(&mut self) -> Result<Expression, String> {
         // Parse logical operators
-        self.parse_bops(&LOGICAL_HIGH, Self::e5)
+        self.parse_bops(&LOGICAL_HIGH, Self::e5, Self::e4)
     }
     fn e5(&mut self) -> Result<Expression, String> {
         // Parse comparison operators
-        self.parse_bops(&EQUALITY, Self::e6)
+        self.parse_bops(&EQUALITY, Self::e6, Self::e5)
     }
     fn e6(&mut self) -> Result<Expression, String> {
         // Parse comparison operators
-        self.parse_bops(&INEQUALITY, Self::e7)
+        self.parse_bops(&INEQUALITY, Self::e7, Self::e6)
     }
     fn e7(&mut self) -> Result<Expression, String> {
         // Parse arithmetic operators
-        self.parse_bops(&ARITHMETIC_LOW, Self::e8)
+        self.parse_bops(&ARITHMETIC_LOW, Self::e8, Self::e7)
     }
     fn e8(&mut self) -> Result<Expression, String> {
         // Parse arithmetic operators
-        self.parse_bops(&ARITHMETIC_HIGH, Self::e9)
+        self.parse_bops(&ARITHMETIC_HIGH, Self::e9, Self::e8)
     }
     fn e9(&mut self) -> Result<Expression, String> {
         // Mark position
