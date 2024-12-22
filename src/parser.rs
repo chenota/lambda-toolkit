@@ -303,8 +303,8 @@ impl Parser {
         let pos = self.mark();
         // Check for uops, reset if didn't find
         Ok(match self.get_token().0 {
-            Variant::Not => Expression::UopExpr(Uop::NotUop, Box::new(self.e5()?)),
-            Variant::Minus => Expression::UopExpr(Uop::NegUop, Box::new(self.e5()?)),
+            Variant::Not => Expression::UopExpr(Uop::NotUop, Box::new(self.e9()?)),
+            Variant::Minus => Expression::UopExpr(Uop::NegUop, Box::new(self.e9()?)),
             Variant::LParen => {
                 // Parse expression
                 let e = self.expression()?;
