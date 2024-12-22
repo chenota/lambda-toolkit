@@ -7,22 +7,28 @@ macro_rules! token_value {
     }
 }
 
-// Constants
+// Precedence levels
 const LOGICAL_LOW: [(Variant, Bop); 1] = [
-    (Variant::And, Bop::AndBop),
+    (Variant::Or, Bop::OrBop),
 ];
 
-const LOGICAL_HIGH: [(Variant, Bop); 2] = [
-    (Variant::Or, Bop::OrBop),
+const LOGICAL_MEDIUM: [(Variant, Bop); 1] = [
     (Variant::Xor, Bop::XorBop)
 ];
 
-const COMPARISON_OPS: [(Variant, Bop); 5] = [
+const LOGICAL_HIGH: [(Variant, Bop); 1] = [
+    (Variant::And, Bop::AndBop),
+];
+
+const EQUALITY: [(Variant, Bop); 1] = [
+    (Variant::Eq, Bop::EqBop)
+];
+
+const INEQUALITY: [(Variant, Bop); 4] = [
     (Variant::Gt, Bop::GtBop),
     (Variant::Gte, Bop::GteBop),
     (Variant::Lt, Bop::LtBop),
     (Variant::Lte, Bop::LteBop),
-    (Variant::Eq, Bop::EqBop)
 ];
 
 const ARITHMETIC_LOW: [(Variant, Bop); 2] = [
@@ -218,21 +224,29 @@ impl Parser {
     }
     fn e3(&mut self) -> Result<Expression, String> {
         // Parse logical operators
-        self.parse_bops(&LOGICAL_HIGH, Self::e4)
+        self.parse_bops(&LOGICAL_MEDIUM, Self::e4)
     }
     fn e4(&mut self) -> Result<Expression, String> {
-        // Parse comparison operators
-        self.parse_bops(&COMPARISON_OPS, Self::e5)
+        // Parse logical operators
+        self.parse_bops(&LOGICAL_HIGH, Self::e5)
     }
     fn e5(&mut self) -> Result<Expression, String> {
-        // Parse arithmetic operators
-        self.parse_bops(&ARITHMETIC_LOW, Self::e6)
+        // Parse comparison operators
+        self.parse_bops(&EQUALITY, Self::e6)
     }
     fn e6(&mut self) -> Result<Expression, String> {
-        // Parse arithmetic operators
-        self.parse_bops(&ARITHMETIC_HIGH, Self::e7)
+        // Parse comparison operators
+        self.parse_bops(&INEQUALITY, Self::e7)
     }
     fn e7(&mut self) -> Result<Expression, String> {
+        // Parse arithmetic operators
+        self.parse_bops(&ARITHMETIC_LOW, Self::e8)
+    }
+    fn e8(&mut self) -> Result<Expression, String> {
+        // Parse arithmetic operators
+        self.parse_bops(&ARITHMETIC_HIGH, Self::e9)
+    }
+    fn e9(&mut self) -> Result<Expression, String> {
         // Mark position
         let pos = self.mark();
         // Check for uops, reset if didn't find
