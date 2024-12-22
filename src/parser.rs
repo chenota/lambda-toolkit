@@ -117,6 +117,8 @@ impl Parser {
         self.expect(Variant::Eq)?;
         // Parse an expression
         let e = self.expression()?;
+        // Expect an in keyword
+        self.expect(Variant::In)?;
         // Put together
         Ok((id, e))
     }
