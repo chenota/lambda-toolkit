@@ -41,6 +41,21 @@ const ARITHMETIC_HIGH: [(Variant, Bop); 2] = [
     (Variant::Div, Bop::DivBop)
 ];
 
+const OP_ALL: [(Variant, Bop); 12] = [
+    (Variant::Or, Bop::OrBop),
+    (Variant::Xor, Bop::XorBop),
+    (Variant::And, Bop::AndBop),
+    (Variant::Eq, Bop::EqBop),
+    (Variant::Gt, Bop::GtBop),
+    (Variant::Gte, Bop::GteBop),
+    (Variant::Lt, Bop::LtBop),
+    (Variant::Lte, Bop::LteBop),
+    (Variant::Plus, Bop::PlusBop),
+    (Variant::Minus, Bop::MinusBop),
+    (Variant::Times, Bop::TimesBop),
+    (Variant::Div, Bop::DivBop)
+];
+
 // Parser
 pub struct Parser {
     noprec: bool,
@@ -177,8 +192,14 @@ impl Parser {
                 // Return
                 Ok(Expression::FuncExpr(ilist, Box::new(body)))
             },
-            // If error, parse an e2
-            _ => self.e2()
+            // If error, parse binary operators
+            _ => {
+                if self.noprec {
+                    self.parse_bops(&OP_ALL, Self::e9)
+                } else {
+                    self.e2()
+                }
+            }
         }
     }
     fn parse_bops(&mut self, oplist: &[(Variant, Bop)], f: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
