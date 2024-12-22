@@ -49,10 +49,10 @@ struct Args {
     #[arg(value_enum, long("prog"), default_value_t=Program::Script, help="Select a part of the program to run")]
     program: Program,
 
-    #[arg(long, help="Use rightmost associativity for operators")]
+    #[arg(long, help="Use rightmost associativity for binary operators")]
     right: bool,
 
-    #[arg(long("no-prec"), help="Disable operator precedence")]
+    #[arg(long("no-prec"), help="Disable precedence rules for binary operators")]
     noprec: bool,
 
     #[arg(help="Optional path to program file. Use stdin if not specified.")]
