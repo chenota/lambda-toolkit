@@ -168,15 +168,20 @@ impl Parser {
         let mut expr_list= Vec::new();
         // Consume until can't
         loop {
-            // Peek token variant
-            let peek_var = self.peek_token().0;
+            // Mark position
+            let pos = self.mark();
+            // Pop token variant
+            let peek_var = self.get_token().0;
             // Parse expression after and symbol if exists, otherwise if no and symbol break
             match oplist.iter().position(|r| r.0 == peek_var) {
                 Some(i) => {
                     // Push operator and following expression
-                    expr_list.push((oplist[i].1.clone(), f(self)?))
+                    expr_list.push((oplist[i].1.clone(), f(self)?));
                 },
-                None => break
+                None => {
+                    self.reset(pos);
+                    break
+                }
             }
         };
         // If nothing, return first item
