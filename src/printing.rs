@@ -57,36 +57,72 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
     println!("]")
 }
 
+fn print_level(level: usize) {
+    for _ in 0..level { print!("| ") }
+}
+
 fn print_string(tree: &String, level: usize) {
     // Print level
-    for _ in 0..level { print!("|  ") }
+    print_level(level);
     // Print line
-    println!("{}", tree);
+    print!("{}", tree);
 }
 
 fn print_str(tree: &str, level: usize) {
     // Print level
-    for _ in 0..level { print!("|  ") }
+    print_level(level);
     // Print line
-    println!("{}", tree);
+    print!("{}", tree);
+}
+
+fn print_operator(tree: &str, level: usize) {
+    // Print level
+    print_level(level);
+    // Print wrapper
+    print!("Operator(");
+    // Print line
+    print!("{}", tree);
+    // Print closing paren
+    print!(")")
+}
+
+fn print_parameters(tree: &Vec<ast::Ident>, level: usize) {
+    // Print level
+    print_level(level);
+    // Print wrapper
+    print!("Parameters(");
+    // Print list of parameters
+    for (i, id) in tree.iter().enumerate() {
+        match id {
+            Some(s) => print!("{}", s),
+            None => print!("_")
+        }
+        if i < tree.len() - 1 { print!(", ") }
+    }
+    // Print end paren
+    print!(")")
 }
 
 fn print_expression(tree: &ast::Expression, level: usize) {
     // Print level
-    for _ in 0..level { print!("|  ") }
+    print_level(level);
     // Check expression type
     match tree {
         ast::Expression::ApplicationExpr(elist) => {
             // Header
             println!("ApplicationExpr");
             // Print list of applications
-            for ex in elist { print_expression(ex, level + 1) }
+            for (i, ex) in elist.iter().enumerate() { 
+                print_expression(ex, level + 1);
+                // Newline
+                if i < elist.len() - 1 { println!() };
+            }
         },
         ast::Expression::BopExpr(b, e1, e2) => {
             // Header
             println!("BopExpr");
             // Operator
-            print_str(match b {
+            print_operator(match b {
                 ast::Bop::AndBop => "&",
                 ast::Bop::OrBop => "|",
                 ast::Bop::XorBop => "^",
@@ -100,18 +136,24 @@ fn print_expression(tree: &ast::Expression, level: usize) {
                 ast::Bop::GteBop => ">=",
                 ast::Bop::EqBop => "="
             }, level + 1);
+            // Newline
+            println!();
             // Expressions
             print_expression(e1.as_ref(), level + 1);
+            // Newline
+            println!();
             print_expression(e2.as_ref(), level + 1);
         },
         ast::Expression::UopExpr(u, e) => {
             // Header
             println!("UopExpr");
             // Operator
-            print_str(match u {
+            print_operator(match u {
                 ast::Uop::NegUop => "-",
                 ast::Uop::NotUop => "!",
             }, level + 1);
+            // Newline
+            println!();
             // Expression
             print_expression(e.as_ref(), level + 1);
         },
@@ -119,44 +161,37 @@ fn print_expression(tree: &ast::Expression, level: usize) {
             // Header
             println!("FuncExpr");
             // Parameters
-            for id in ilist {
-                match id {
-                    Some(s) => print_string(s, level + 1),
-                    None => print_str("_", level + 1)
-                }
-            };
+            print_parameters(ilist, level + 1);
+            // Newline
+            println!();
             // Body
             print_expression(body.as_ref(), level + 1)
         },
         ast::Expression::ValExpr(v) => {
-            // Header
-            println!("Value");
             // Print value
-            match v {
+            print!("{}", match v {
                 ast::Value::Boolean(x) => {
                     let s = if *x {"true"} else {"false"};
-                    print_string(&("Boolean(".to_string() + s + ")"), level + 1)
+                    "Bool(".to_string() + s + ")"
                 },
                 ast::Value::Identifier(x) => {
-                    print_string(&("Identifier(".to_string() + x + ")"), level + 1)
+                    "Ident(".to_string() + x + ")"
                 },
                 ast::Value::Number(x) => {
                     let s = x.to_string();
-                    print_string(&("Number(".to_string() + &s + ")"), level + 1)
+                    "Num(".to_string() + &s + ")"
                 },
                 ast::Value::Unit => {
-                    print_str("Unit(_)", level + 1)
+                    "Unit(_)".to_string()
                 }
-            }
+            })
         }
     }
-    // Newline
-    println!()
 }
 
 fn print_statement(tree: &ast::Statement, level: usize) {
     // Print level
-    for _ in 0..level { print!("|  ") }
+    print_level(level);
     // Header
     println!("Let");
     // Identifier
@@ -166,8 +201,6 @@ fn print_statement(tree: &ast::Statement, level: usize) {
     };
     // Expression
     print_expression(&tree.1, level + 1);
-    // Newline
-    println!()
 }
 
 pub fn print_program(tree: &ast::Program) {
@@ -175,7 +208,9 @@ pub fn print_program(tree: &ast::Program) {
     println!("Program");
     // Print statements
     for s in &tree.0 {
-        print_statement(s, 1)
+        print_statement(s, 1);
+        // Newline
+        println!();
     };
     // Print expression
     print_expression(&tree.1, 1);
