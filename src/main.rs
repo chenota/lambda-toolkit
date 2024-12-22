@@ -39,14 +39,15 @@ macro_rules! parse {
 #[derive(clap::ValueEnum, Clone, Debug)]
 enum Program {
     Lex,
-    Parse,
-    Script
+    Ast,
+    Group,
+    Eval
 }
 
 #[derive(Parser, Debug)]
 #[command(version, about = "Lambda calculus evaluator", long_about = None)]
 struct Args {
-    #[arg(value_enum, long("prog"), default_value_t=Program::Script, help="Select a part of the program to run")]
+    #[arg(value_enum, long("prog"), default_value_t=Program::Eval, help="Select a part of the program to run")]
     program: Program,
 
     #[arg(long, help="Use rightmost associativity for binary operators")]
@@ -99,7 +100,7 @@ fn main() {
             printing::print_token_stream(&lexer_out)
         },
         // Run parser program
-        Program::Parse => {
+        Program::Ast => {
             // Generate lexer output
             let lexer_out = lex!(lex, &input);
             // Generate parser output
@@ -107,8 +108,17 @@ fn main() {
             // Print abstract syntax tree
             printing::print_program(&parser_out);
         },
+        // Run grouping program
+        Program::Group => {
+            // Generate lexer output
+            let lexer_out = lex!(lex, &input);
+            // Generate parser output
+            let parser_out = parse!(parse, lexer_out);
+            // Print grouping
+            printing::print_group(&parser_out);
+        },
         // Run evaluator program
-        Program::Script => {
+        Program::Eval => {
 
         }
     }

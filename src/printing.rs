@@ -57,6 +57,30 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
     println!("]")
 }
 
+fn bop_to_str(x: &ast::Bop) -> String {
+    (match x {
+        ast::Bop::AndBop => "&",
+        ast::Bop::OrBop => "|",
+        ast::Bop::XorBop => "^",
+        ast::Bop::PlusBop => "+",
+        ast::Bop::MinusBop => "-",
+        ast::Bop::TimesBop => "*",
+        ast::Bop::DivBop => "/",
+        ast::Bop::LtBop => "<",
+        ast::Bop::LteBop => "<=",
+        ast::Bop::GtBop => ">",
+        ast::Bop::GteBop => ">=",
+        ast::Bop::EqBop => "="
+    }).to_string()
+}
+
+fn uop_to_str(x: &ast::Uop) -> String {
+    (match x {
+        ast::Uop::NegUop => "-",
+        ast::Uop::NotUop => "!",
+    }).to_string()
+}
+
 fn print_level(level: usize) {
     for _ in 0..level { print!("| ") }
 }
@@ -119,20 +143,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
             // Header
             println!("Binary Operation");
             // Operator
-            print_operator(match b {
-                ast::Bop::AndBop => "&",
-                ast::Bop::OrBop => "|",
-                ast::Bop::XorBop => "^",
-                ast::Bop::PlusBop => "+",
-                ast::Bop::MinusBop => "-",
-                ast::Bop::TimesBop => "*",
-                ast::Bop::DivBop => "/",
-                ast::Bop::LtBop => "<",
-                ast::Bop::LteBop => "<=",
-                ast::Bop::GtBop => ">",
-                ast::Bop::GteBop => ">=",
-                ast::Bop::EqBop => "="
-            }, level + 1);
+            print_operator(bop_to_str(b).as_str(), level + 1);
             // Newline
             println!();
             // Expressions
@@ -145,10 +156,7 @@ fn print_expression(tree: &ast::Expression, level: usize) {
             // Header
             println!("Unary Operation");
             // Operator
-            print_operator(match u {
-                ast::Uop::NegUop => "-",
-                ast::Uop::NotUop => "!",
-            }, level + 1);
+            print_operator(uop_to_str(u).as_str(), level + 1);
             // Newline
             println!();
             // Expression
@@ -213,6 +221,99 @@ pub fn print_program(tree: &ast::Program) {
     };
     // Print expression
     print_expression(&tree.1, 1);
+    // Newline
+    println!()
+}
+
+fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
+    // Always disable outer parenthesis for values and enable for functions
+    let mut outer = outer;
+    match tree { 
+        ast::Expression::ValExpr(_) => outer = false, 
+        ast::Expression::FuncExpr(_, _) => outer = true, 
+        _ => () 
+    }
+    // Opening paren
+    if outer { print!("(") }
+    // Expression
+    match tree {
+        ast::Expression::ApplicationExpr(alist) => {
+            // Print len(vec) - 2 open parenthesis
+            for _ in 0..(alist.len() - 2) { print!("(") };
+            // Print first item in expression
+            print_grouped_expression(alist.first().unwrap(), true);
+            // Print space
+            print!(" ");
+            // Print rest of items in application
+            for (i, ex) in alist[1..].iter().enumerate() {
+                // Print expression
+                print_grouped_expression(ex, true);
+                // Print space except for last item
+                if i < alist.len() - 2 { print!(") ") }
+            }
+        },
+        ast::Expression::BopExpr(b, e1, e2) => {
+            // Print first expression
+            print_grouped_expression(e1.as_ref(), true);
+            // Print bop
+            print!(" {} ", bop_to_str(b));
+            // Print second expression
+            print_grouped_expression(e2.as_ref(), true);
+        },
+        ast::Expression::FuncExpr(plist, body) => {
+            // Print lambda
+            print!("\\");
+            // Print parameters
+            for (i, p) in plist.iter().enumerate() {
+                match p {
+                    Some(s) => print!("{}", s),
+                    None => print!("_")
+                }
+                if i < plist.len() - 1 { print!(" ") }
+            };
+            // Dot
+            print!(". ");
+            // Body
+            print_grouped_expression(body.as_ref(), false);
+        },
+        ast::Expression::UopExpr(op, body) => {
+            // Operator
+            print!("{}", uop_to_str(op));
+            // Expression
+            print_grouped_expression(body.as_ref(), true);
+        },
+        ast::Expression::ValExpr(v) => {
+            print!("{}", match v {
+                ast::Value::Boolean(x) => (if *x { "true" } else { "false" }).to_string(),
+                ast::Value::Identifier(x) => x.to_string(),
+                ast::Value::Number(x) => x.to_string(),
+                ast::Value::Unit => "_".to_string(),
+            })
+        }
+    }
+    // Closing paren
+    if outer { print!(")") }
+}
+
+pub fn print_group(tree: &ast::Program) {
+    // Print statements
+    for s in &tree.0 {
+        // Let keyword
+        print!("let ");
+        // Identifier
+        match &s.0 {
+            Some(s) => print!("{}", s),
+            None => print!("_")
+        }
+        // = keyword
+        print!(" = ");
+        // Expression
+        print_grouped_expression(&s.1, false);
+        // in keyword and newline
+        println!(" in")
+    };
+    // Print expression
+    print_grouped_expression(&tree.1, false);
     // Newline
     println!()
 }
