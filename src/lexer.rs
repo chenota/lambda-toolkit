@@ -27,7 +27,7 @@ fn value_bool_t(_: &str) -> TokenValue { TokenValue::Boolean(true) }
 fn value_bool_f(_: &str) -> TokenValue { TokenValue::Boolean(false) }
 
 // Number to available tokens
-const TOKEN_COUNT: usize = 29;
+const TOKEN_COUNT: usize = 26;
 
 // Tokens
 const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
@@ -38,8 +38,6 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"in"), VariantOption::Some(Variant::In, value_none)),
     (reg!(r"\("), VariantOption::Some(Variant::LParen, value_none)),
     (reg!(r"\)"), VariantOption::Some(Variant::RParen, value_none)),
-    (reg!(r"truec"), VariantOption::Some(Variant::CBoolean, value_bool_t)),
-    (reg!(r"falsec"), VariantOption::Some(Variant::CBoolean, value_bool_f)),
     (reg!(r"true"), VariantOption::Some(Variant::Boolean, value_bool_t)),
     (reg!(r"false"), VariantOption::Some(Variant::Boolean, value_bool_f)),
     (reg!(r"_"), VariantOption::Some(Variant::Unit, value_none)),
@@ -58,7 +56,6 @@ const TOKENS: [(&str, VariantOption); TOKEN_COUNT] = [
     (reg!(r"\|"), VariantOption::Some(Variant::Or, value_none)),
     (reg!(r"\^"), VariantOption::Some(Variant::Xor, value_none)),
     // Numbers
-    (reg!(r"[0-9]+c"), VariantOption::Some(Variant::CNumber, value_church)),
     (reg!(r"[0-9]+"), VariantOption::Some(Variant::Number, value_number)),
     // Identifiers
     (reg!(r"[a-zA-Z]+"), VariantOption::Some(Variant::Ident, value_ident)),

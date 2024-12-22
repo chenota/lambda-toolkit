@@ -1,13 +1,15 @@
 pub mod ast {
+    pub type Ident = Option<String>;
+
     pub type Program = (Vec<Statement>, Expression);
 
-    pub type Statement = (String, Expression);
+    pub type Statement = (Ident, Expression);
 
     pub enum Expression {
         UopExpr(Uop, Box<Expression>),
         BopExpr(Bop, Box<Expression>, Box<Expression>),
         ApplicationExpr(Vec<Expression>),
-        FuncExpr(Vec<Option<String>>, Box<Expression>),
+        FuncExpr(Vec<Ident>, Box<Expression>),
         ValExpr(Value)
     }
 
@@ -23,6 +25,7 @@ pub mod ast {
         NotUop,
     }
 
+    #[derive(Clone)]
     pub enum Bop {
         PlusBop,
         MinusBop,
@@ -49,8 +52,6 @@ pub mod token {
         RParen,
         Ident,
         EOF,
-        CNumber,
-        CBoolean,
         Number,
         Boolean,
         Plus,
@@ -68,7 +69,7 @@ pub mod token {
         Xor,
         Let,
         In,
-        Unit
+        Unit,
     }
 
     #[derive(Clone)]

@@ -25,6 +25,7 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
             token::Variant::Xor => "XOR".to_string(),
             token::Variant::Let => "LET".to_string(),
             token::Variant::In => "IN".to_string(),
+            token::Variant::Unit => "UNIT".to_string(),
             token::Variant::Ident => {
                 let s = match &t.1 {
                     token::TokenValue::Str(s) => s,
@@ -32,26 +33,12 @@ pub fn print_token_stream(stream: &Vec<token::Token>) -> () {
                 };
                 "IDENT(".to_string() + s + ")"
             },
-            token::Variant::CNumber => {
-                let s = match &t.1 {
-                    token::TokenValue::Number(n) => &n.to_string(),
-                    _ => "ERR"
-                };
-                "CNUMBER(".to_string() + s + ")"
-            },
             token::Variant::Number => {
                 let s = match &t.1 {
                     token::TokenValue::Number(n) => &n.to_string(),
                     _ => "ERR"
                 };
                 "NUMBER(".to_string() + s + ")"
-            },
-            token::Variant::CBoolean => {
-                let s = match &t.1 {
-                    token::TokenValue::Boolean(b) => if *b {"true"} else {"false"},
-                    _ => "ERR"
-                };
-                "CBOOLEAN(".to_string() + s + ")"
             },
             token::Variant::Boolean => {
                 let s = match &t.1 {
