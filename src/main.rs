@@ -46,8 +46,14 @@ enum Program {
 #[derive(Parser, Debug)]
 #[command(version, about = "Lambda calculus evaluator", long_about = None)]
 struct Args {
-    #[arg(value_enum, long, default_value_t=Program::Script, help="Select a part of the program to run.")]
-    prog: Program,
+    #[arg(value_enum, long("prog"), default_value_t=Program::Script, help="Select a part of the program to run")]
+    program: Program,
+
+    #[arg(long, help="Use rightmost associativity for operators")]
+    right: bool,
+
+    #[arg(long("no-prec"), help="Disable operator precedence")]
+    noprec: bool,
 
     #[arg(help="Optional path to program file. Use stdin if not specified.")]
     fname: Option<String>
@@ -85,7 +91,7 @@ fn main() {
     let mut parse = parser::Parser::new();
 
     // Run lexer program
-    match args.prog{
+    match args.program{
         Program::Lex => {
             // Generate lexer output
             let lexer_out = lex!(lex, &input);
