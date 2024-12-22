@@ -150,6 +150,25 @@ impl Parser {
             )
         }
     }
+    fn parse_bops_right(&mut self, oplist: &[(Variant, Bop)], f1: fn(&mut Self) -> Result<Expression, String>, f2: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
+        // Parse
+        let head = f1(self)?;
+        // Mark current position
+        let pos = self.mark();
+        // Pop next token
+        let peek_var = self.get_token().0;
+        // Is it in the operators to look for?
+        match oplist.iter().position(|r| r.0 == peek_var) {
+            Some(i) => {
+                // Generate expression
+                Ok(Expression::BopExpr(oplist[i].1.clone(), Box::new(head), Box::new(f2(self)?)))
+            },
+            None => {
+                self.reset(pos);
+                Ok(head)
+            }
+        }
+    }
     // Parse
     pub fn parse_program(&mut self, tokens: Vec<Token>) -> Result<Program, String> {
         // Set up parse
@@ -248,25 +267,6 @@ impl Parser {
                 } else {
                     self.e2()
                 }
-            }
-        }
-    }
-    fn parse_bops_right(&mut self, oplist: &[(Variant, Bop)], f1: fn(&mut Self) -> Result<Expression, String>, f2: fn(&mut Self) -> Result<Expression, String>) -> Result<Expression, String> {
-        // Parse
-        let head = f1(self)?;
-        // Mark current position
-        let pos = self.mark();
-        // Pop next token
-        let peek_var = self.get_token().0;
-        // Is it in the operators to look for?
-        match oplist.iter().position(|r| r.0 == peek_var) {
-            Some(i) => {
-                // Generate expression
-                Ok(Expression::BopExpr(oplist[i].1.clone(), Box::new(head), Box::new(f2(self)?)))
-            },
-            None => {
-                self.reset(pos);
-                Ok(head)
             }
         }
     }
