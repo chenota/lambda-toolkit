@@ -88,7 +88,7 @@ fn main() {
     // Create lexer
     let mut lex = lexer::Lexer::new();
     // Create parser
-    let mut parse = parser::Parser::new();
+    let mut parse = parser::Parser::new(args.noprec, args.right);
 
     // Run lexer program
     match args.program{

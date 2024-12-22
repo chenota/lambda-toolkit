@@ -43,13 +43,17 @@ const ARITHMETIC_HIGH: [(Variant, Bop); 2] = [
 
 // Parser
 pub struct Parser {
+    noprec: bool,
+    right: bool,
     pos: usize,
     tokens: Vec<Token>
 }
 impl Parser {
     // Utility Functions
-    pub fn new() -> Parser {
+    pub fn new(noprec: bool, right: bool) -> Parser {
         Parser {
+            noprec,
+            right,
             pos: 0,
             tokens: Vec::new()
         }
