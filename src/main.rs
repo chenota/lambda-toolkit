@@ -47,7 +47,7 @@ enum Program {
 #[command(version, about = "Lambda calculus evaluator", long_about = None)]
 struct Args {
     #[arg(value_enum, long, default_value_t=Program::Script, help="Select a part of the program to run.")]
-    program: Program,
+    prog: Program,
 
     #[arg(help="Optional path to program file. Use stdin if not specified.")]
     fname: Option<String>
@@ -85,7 +85,7 @@ fn main() {
     let mut parse = parser::Parser::new();
 
     // Run lexer program
-    match args.program{
+    match args.prog{
         Program::Lex => {
             // Generate lexer output
             let lexer_out = lex!(lex, &input);
