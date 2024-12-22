@@ -238,6 +238,7 @@ impl Parser {
             Variant::Ident => Value::Identifier(token_value!(token_head, TokenValue::Str)),
             Variant::Boolean => Value::Boolean(token_value!(token_head, TokenValue::Boolean)),
             Variant::Number => Value::Number(token_value!(token_head, TokenValue::Number)),
+            Variant::Unit => Value::Unit,
             _ => return Err(self.err_msg())
         })
     }
