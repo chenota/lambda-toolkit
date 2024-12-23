@@ -1,7 +1,5 @@
 use crate::types::ast::*;
 
-type Environment = Vec<(String, Expression)>;
-
 macro_rules! vtype {
     ($e:expr) => {
         match $e {
@@ -52,18 +50,61 @@ macro_rules! bop {
     }
 }
 
+pub struct Environment {
+    data: Vec<(String, Expression)>
+}
+impl Environment {
+    pub fn new() -> Environment {
+        Environment {
+            data: Vec::new()
+        }
+    }
+    pub fn push(&mut self, ident: &String, item: Expression) {
+        self.data.push((ident.clone(), item))
+    }
+    pub fn pop(&mut self, n: usize) {
+        for _ in 0..n { self.data.pop(); }
+    }
+    pub fn clear(&mut self) {
+        self.data.clear()
+    }
+    pub fn read(&self, ident: &String) -> Option<Expression> {
+        // Iterate backwards through vector, return first match
+        match self.data.iter().rev().find(|r| r.0 == *ident) {
+            Some((_,ex)) => Some(ex.clone()),
+            None => None
+        }
+    }
+}
+
 pub struct Evaluator {
     env: Environment,
 }
 impl Evaluator {
     pub fn new() -> Evaluator {
         Evaluator{  
-            env: Vec::new()
+            env: Environment::new()
         }
     }
     fn step(&mut self, expr: &mut Expression) -> Result<bool, String> {
         match expr {
-            Expression::ValExpr(_) => Ok(false),
+            Expression::ValExpr(v) => {
+                match v {
+                    // If ident val, check if available in environment
+                    Value::Identifier(ident) => match self.env.read(ident) {
+                        // Available
+                        Some(ex) => {
+                            // Update self
+                            *expr = ex;
+                            // Return true
+                            Ok(true)
+                        },
+                        // Not available, return false
+                        _ => Ok(false)
+                    },
+                    _ => Ok(false)
+                }
+            },
             Expression::UopExpr(op, e1) => {
                 // Attempt to step e1
                 let e1_step = self.step(e1.as_mut())?;
@@ -124,7 +165,20 @@ impl Evaluator {
         Ok(expr)
     }
     pub fn eval_program(&mut self, prog: Program) -> Result<Expression, String> {
+        // Clear environment
+        self.env.clear();
         // Statements
+        for stmt in prog.0 {
+            match stmt.0 {
+                Some(ident) => {
+                    // Evaluate expression (don't really care if it reduces or not, so just return error)
+                    let eval_e = self.eval_expr(stmt.1)?;
+                    // Store in environment
+                    self.env.push(&ident, eval_e)
+                },
+                None => ()
+            }
+        };
         // Program body
         self.eval_expr(prog.1)
     }
