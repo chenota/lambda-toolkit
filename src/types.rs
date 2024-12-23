@@ -5,6 +5,7 @@ pub mod ast {
 
     pub type Statement = (Ident, Expression);
 
+    #[derive(Clone)]
     pub enum Expression {
         UopExpr(Uop, Box<Expression>),
         BopExpr(Bop, Box<Expression>, Box<Expression>),
@@ -13,6 +14,7 @@ pub mod ast {
         ValExpr(Value)
     }
 
+    #[derive(Clone)]
     pub enum Value {
         Identifier(String),
         Number(u128),
@@ -20,6 +22,7 @@ pub mod ast {
         Unit
     }
 
+    #[derive(Clone)]
     pub enum Uop {
         NegUop,
         NotUop,

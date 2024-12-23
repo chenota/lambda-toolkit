@@ -225,7 +225,7 @@ pub fn print_program(tree: &ast::Program) {
     println!()
 }
 
-fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
+pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
     // Always disable outer parenthesis for values and enable for functions
     let mut outer = outer;
     match tree { 

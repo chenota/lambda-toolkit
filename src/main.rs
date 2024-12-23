@@ -2,6 +2,7 @@ mod types;
 mod lexer;
 mod printing;
 mod parser;
+mod evaluator;
 
 use clap::Parser;
 use std::io;
@@ -25,6 +26,18 @@ macro_rules! lex {
 macro_rules! parse {
     ($e1: expr, $e2: expr) => {
         match $e1.parse_program($e2) {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("{}", e);
+                process::exit(1)
+            }
+        }
+    }
+}
+
+macro_rules! eval {
+    ($e1: expr, $e2: expr) => {
+        match $e1.eval_program($e2) {
             Ok(s) => s,
             Err(e) => {
                 eprintln!("{}", e);
@@ -90,6 +103,8 @@ fn main() {
     let mut lex = lexer::Lexer::new();
     // Create parser
     let mut parse = parser::Parser::new(args.noprec, args.right);
+    // Create evaluator
+    let mut evaluate = evaluator::Evaluator::new();
 
     // Run lexer program
     match args.program{
@@ -119,7 +134,16 @@ fn main() {
         },
         // Run evaluator program
         Program::Eval => {
-
+            // Generate lexer output
+            let lexer_out = lex!(lex, &input);
+            // Generate parser output
+            let parser_out = parse!(parse, lexer_out);
+            // Evaluate parser output
+            let eval_out = eval!(evaluate, parser_out);
+            // Print grouping
+            printing::print_grouped_expression(&eval_out, false);
+            // Print newline
+            println!()
         }
     }
 }
