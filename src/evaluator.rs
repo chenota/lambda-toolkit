@@ -18,9 +18,36 @@ macro_rules! value {
         match $e {
             Expression::ValExpr(v) => match v {
                 $p(x) => x.clone(),
-                _ => return Err("Incompatible type ".to_string() + vtype!(v) + concat!(" with operation ", $l))
+                _ => return Err("Incompatible type '".to_string() + vtype!(v) + concat!("' with operation '", $l, "'"))
             },
-            _ => return Err("Incompatible type expr".to_string() + concat!(" with operation ", $l))
+            _ => return Err(concat!("Incompatible type 'expr' with operation '", $l, "'").to_string())
+        }
+    }
+}
+
+macro_rules! bop {
+    // Use if input types == output type
+    ($e1: ident, $e2: ident, $e3: ident, $val: path, $op: tt, $s: literal) => {
+        {
+            // Get values from e1 and e2
+            let v1 = value!($e1.as_ref(), $val, $s);
+            let v2 = value!($e2.as_ref(), $val, $s);
+            // Update expr
+            *$e3 = Expression::ValExpr($val(v1 $op v2));
+            // Return true
+            Ok(true)
+        }
+    };
+    // Use if input types != output type
+    ($e1: ident, $e2: ident, $e3: ident, $val1: path, $val2: path, $op: tt, $s: literal) => {
+        {
+            // Get values from e1 and e2
+            let v1 = value!($e1.as_ref(), $val1, $s);
+            let v2 = value!($e2.as_ref(), $val1, $s);
+            // Update expr
+            *$e3 = Expression::ValExpr($val2(v1 $op v2));
+            // Return true
+            Ok(true)
         }
     }
 }
@@ -46,7 +73,7 @@ impl Evaluator {
                 match op {
                     Uop::NotUop => {
                         // Get boolean value from e1
-                        let bool_val = value!(e1.as_ref(), Value::Boolean, "not");
+                        let bool_val = value!(e1.as_ref(), Value::Boolean, "!");
                         // Update expr
                         *expr = Expression::ValExpr(Value::Boolean(!bool_val));
                         // Return true
@@ -54,12 +81,37 @@ impl Evaluator {
                     },
                     Uop::NegUop => {
                         // Get integer value from e1
-                        let int_val = value!(e1.as_ref(), Value::Number, "negation");
+                        let int_val = value!(e1.as_ref(), Value::Number, "unary -");
                         // Update expr
                         *expr = Expression::ValExpr(Value::Number(-int_val));
                         // Return true
                         Ok(true)
                     }
+                }
+            },
+            Expression::BopExpr(op, e1, e2) => {
+                // Attempt to step e1
+                let e1_step = self.step(e1.as_mut())?;
+                // If was able to step e1, return true
+                if e1_step { return Ok(true) };
+                // Attempt to step e2
+                let e2_step = self.step(e2.as_mut())?;
+                // If was able to step e2, return true
+                if e2_step { return Ok(true) };
+                // If both fully reduced, perform binary operation
+                match op {
+                    Bop::PlusBop => bop!(e1, e2, expr, Value::Number, +, "+"),
+                    Bop::MinusBop => bop!(e1, e2, expr, Value::Number, -, "-"),
+                    Bop::TimesBop => bop!(e1, e2, expr, Value::Number, *, "*"),
+                    Bop::DivBop => bop!(e1, e2, expr, Value::Number, /, "/"),
+                    Bop::AndBop => bop!(e1, e2, expr, Value::Boolean, &&, "&"),
+                    Bop::OrBop => bop!(e1, e2, expr, Value::Boolean, ||, "|"),
+                    Bop::XorBop => bop!(e1, e2, expr, Value::Boolean, ^, "^"),
+                    Bop::GtBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, >, ">"),
+                    Bop::GteBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, >=, ">="),
+                    Bop::LtBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, <, "<="),
+                    Bop::LteBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, <=, "<="),
+                    Bop::EqBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, ==, "=")
                 }
             }
             _ => Err("Unimplemented".to_string())
