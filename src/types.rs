@@ -17,7 +17,7 @@ pub mod ast {
     #[derive(Clone)]
     pub enum Value {
         Identifier(String),
-        Number(u128),
+        Number(i128),
         Boolean(bool),
         Unit
     }
@@ -79,7 +79,7 @@ pub mod token {
     // Token value
     pub enum TokenValue {
         Str(String),
-        Number(u128),
+        Number(i128),
         Boolean(bool),
         None
     }

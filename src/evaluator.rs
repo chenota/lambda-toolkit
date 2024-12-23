@@ -56,7 +56,7 @@ impl Evaluator {
                         // Get integer value from e1
                         let int_val = value!(e1.as_ref(), Value::Number, "negation");
                         // Update expr
-                        *expr = Expression::ValExpr(Value::Number(!int_val));
+                        *expr = Expression::ValExpr(Value::Number(-int_val));
                         // Return true
                         Ok(true)
                     }
