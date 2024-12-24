@@ -1,4 +1,4 @@
-use crate::types::{ast::*, eval::EnvBody};
+use crate::{printing::{print_environment, print_grouped_expression}, types::{ast::*, eval::EnvBody}};
 
 macro_rules! vtype {
     ($e:expr) => {
@@ -226,8 +226,8 @@ impl Evaluator {
                 std::mem::swap(env, &mut self.env);
                 // If finished stepping, get rid of envexpr
                 if !stepped { *expr = ex.as_ref().clone() }
-                // Always true
-                Ok(true)
+                // Return stepped value
+                Ok(stepped)
             }
         }
     }
