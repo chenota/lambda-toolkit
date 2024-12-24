@@ -188,6 +188,9 @@ fn print_expression(tree: &ast::Expression, level: usize) {
                 },
                 ast::Value::Unit => {
                     "Unit(_)".to_string()
+                },
+                ast::Value::Closure(_,_,_) => {
+                    "Closure".to_string()
                 }
             })
         }
@@ -288,6 +291,12 @@ pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
                 ast::Value::Identifier(x) => x.to_string(),
                 ast::Value::Number(x) => x.to_string(),
                 ast::Value::Unit => "_".to_string(),
+                ast::Value::Closure(params, body, _) => {
+                    // Print as function
+                    print_grouped_expression(&ast::Expression::FuncExpr(params.clone(), body.clone()), true);
+                    // Return nothing
+                    "".to_string()
+                }
             })
         }
     }

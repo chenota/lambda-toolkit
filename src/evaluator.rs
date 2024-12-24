@@ -1,4 +1,4 @@
-use crate::types::ast::*;
+use crate::types::{ast::*, eval::EnvBody};
 
 macro_rules! vtype {
     ($e:expr) => {
@@ -6,6 +6,7 @@ macro_rules! vtype {
             Value::Number(_) => "int",
             Value::Identifier(_) => "keyword",
             Value::Boolean(_) => "bool",
+            Value::Closure(_,_,_) => "closure",
             Value::Unit => "unit"
         }
     }
@@ -51,12 +52,17 @@ macro_rules! bop {
 }
 
 pub struct Environment {
-    data: Vec<(String, Expression)>
+    data: EnvBody
 }
 impl Environment {
     pub fn new() -> Environment {
         Environment {
             data: Vec::new()
+        }
+    }
+    pub fn load(data: EnvBody) -> Environment {
+        Environment {
+            data
         }
     }
     pub fn push(&mut self, ident: &String, item: Expression) {
@@ -171,7 +177,7 @@ impl Evaluator {
         for stmt in prog.0 {
             match stmt.0 {
                 Some(ident) => {
-                    // Evaluate expression (don't really care if it reduces or not, so just return error)
+                    // Evaluate expression
                     let eval_e = self.eval_expr(stmt.1)?;
                     // Store in environment
                     self.env.push(&ident, eval_e)

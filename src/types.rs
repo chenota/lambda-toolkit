@@ -1,4 +1,6 @@
 pub mod ast {
+    use super::eval::EnvBody;
+
     pub type Ident = Option<String>;
 
     pub type Program = (Vec<Statement>, Expression);
@@ -19,6 +21,7 @@ pub mod ast {
         Identifier(String),
         Number(i128),
         Boolean(bool),
+        Closure(Vec<Ident>, Box<Expression>, EnvBody),
         Unit
     }
 
@@ -90,5 +93,7 @@ pub mod token {
 }
 
 pub mod eval {
+    use super::ast::Expression;
 
+    pub type EnvBody = Vec<(String, Expression)>;
 }
