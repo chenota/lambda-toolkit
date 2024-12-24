@@ -36,8 +36,8 @@ macro_rules! parse {
 }
 
 macro_rules! eval {
-    ($e1: expr, $e2: expr) => {
-        match $e1.eval_program($e2) {
+    ($e1: expr, $e2: expr, $e3: expr) => {
+        match $e1.eval_program($e2, $e3) {
             Ok(s) => s,
             Err(e) => {
                 eprintln!("{}", e);
@@ -142,7 +142,7 @@ fn main() {
             // Generate parser output
             let parser_out = parse!(parse, lexer_out);
             // Evaluate parser output
-            let eval_out = eval!(evaluate, parser_out);
+            let eval_out = eval!(evaluate, parser_out, args.dynamic);
             // Print grouping
             printing::print_grouped_expression(&eval_out, false);
             // Print newline

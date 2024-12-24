@@ -81,11 +81,13 @@ impl Environment {
 
 pub struct Evaluator {
     env: Environment,
+    dynamic: bool
 }
 impl Evaluator {
     pub fn new() -> Evaluator {
         Evaluator{  
-            env: Environment::new()
+            env: Environment::new(),
+            dynamic: false
         }
     }
     fn step(&mut self, expr: &mut Expression) -> Result<bool, String> {
@@ -158,8 +160,14 @@ impl Evaluator {
                 }
             },
             Expression::FuncExpr(params, body) => {
-                // Change to a closure value
-                *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.clone(), self.env.clone()));
+                // If using dynamic scope, use empty closure
+                if self.dynamic {
+                    *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.clone(), Environment::new()));
+                } 
+                // Default lexical rules
+                else {
+                    *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.clone(), self.env.clone()));
+                }
                 Ok(true)
             },
             Expression::ApplicationExpr(alist) => {
@@ -179,8 +187,8 @@ impl Evaluator {
                         Value::Closure(params, body, env) => {
                             // Are there enough arguments to match params?
                             if alist.len() - 1 < params.len() { return Err("Function not applied to enough parameters".to_string()) }
-                            // Clone closure environment
-                            let mut closure_env = env.clone();
+                            // Clone global env if dynamic, otherwise use closure environment
+                            let mut closure_env = if self.dynamic { self.env.clone() } else { env.clone() };
                             // Push params onto closure env
                             for i in 0..params.len() {
                                 match &params[i] {
@@ -237,9 +245,11 @@ impl Evaluator {
         // Return reduced expression
         Ok(expr)
     }
-    pub fn eval_program(&mut self, prog: Program) -> Result<Expression, String> {
+    pub fn eval_program(&mut self, prog: Program, dynamic: bool) -> Result<Expression, String> {
         // Clear environment
         self.env.clear();
+        // Set scoping rules
+        self.dynamic = dynamic;
         // Statements
         for stmt in prog.0 {
             match stmt.0 {
