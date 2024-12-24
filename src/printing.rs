@@ -1,3 +1,4 @@
+use crate::evaluator::Environment;
 use crate::types::token;
 use crate::types::ast;
 
@@ -294,9 +295,17 @@ pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
                 ast::Value::Identifier(x) => x.to_string(),
                 ast::Value::Number(x) => x.to_string(),
                 ast::Value::Unit => "_".to_string(),
-                ast::Value::Closure(params, body, _) => {
-                    // Print as function
-                    print_grouped_expression(&ast::Expression::FuncExpr(params.clone(), body.clone()), true);
+                ast::Value::Closure(params, body, env) => {
+                    // Print closure keyword
+                    print!("closure(");
+                    // Print function
+                    print_grouped_expression(&ast::Expression::FuncExpr(params.clone(), body.clone()), false);
+                    // Print separator
+                    print!(", ");
+                    // Print environment
+                    print_environment(env);
+                    // Print closing paren
+                    print!(")");
                     // Return nothing
                     "".to_string()
                 }
@@ -331,4 +340,16 @@ pub fn print_group(tree: &ast::Program) {
     print_grouped_expression(&tree.1, false);
     // Newline
     println!()
+}
+
+pub fn print_environment(env: &Environment) {
+    // Print open bracket
+    print!("[");
+    for (i, item) in env.data().iter().enumerate() {
+        print!("{} = ", &item.0);
+        print_grouped_expression(&item.1, false);
+        if i < env.data().len() - 1 { print!("; ") };
+    }
+    // Print closed bracket
+    print!("]")
 }

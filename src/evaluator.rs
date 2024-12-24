@@ -61,6 +61,9 @@ impl Environment {
             data: Vec::new()
         }
     }
+    pub fn data(&self) -> &EnvBody {
+        self.data.as_ref()
+    }
     pub fn push(&mut self, ident: &String, item: Expression) {
         self.data.push((ident.clone(), item))
     }
@@ -157,7 +160,6 @@ impl Evaluator {
             Expression::FuncExpr(params, body) => {
                 // Change to a closure value
                 *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.clone(), self.env.clone()));
-                // Return true
                 Ok(true)
             },
             Expression::ApplicationExpr(alist) => {
