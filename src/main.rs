@@ -69,6 +69,9 @@ struct Args {
     #[arg(long("no-prec"), help="Disable precedence rules for binary operators")]
     noprec: bool,
 
+    #[arg(long, help="Use dynamic scoping rules in the evaluator")]
+    dynamic: bool,
+
     #[arg(help="Optional path to program file. Use stdin if not specified.")]
     fname: Option<String>
 }
