@@ -1,4 +1,4 @@
-use crate::{printing::{print_environment, print_grouped_expression}, types::{ast::*, eval::EnvBody}};
+use crate::types::{ast::*, eval::EnvBody};
 
 macro_rules! vtype {
     ($e:expr) => {
