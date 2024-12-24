@@ -245,8 +245,6 @@ pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
     // Expression
     match tree {
         ast::Expression::ApplicationExpr(alist) => {
-            // Print len(vec) - 2 open parenthesis
-            for _ in 0..(alist.len() - 2) { print!("(") };
             // Print first item in expression
             print_grouped_expression(alist.first().unwrap(), true);
             // Print space
@@ -256,7 +254,7 @@ pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
                 // Print expression
                 print_grouped_expression(ex, true);
                 // Print space except for last item
-                if i < alist.len() - 2 { print!(") ") }
+                if i < alist.len() - 2 { print!(" ") }
             }
         },
         ast::Expression::BopExpr(b, e1, e2) => {
