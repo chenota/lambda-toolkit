@@ -71,6 +71,9 @@ impl Environment {
     pub fn pop(&mut self, n: usize) {
         for _ in 0..n { self.data.pop(); }
     }
+    pub fn get_body(&self) -> EnvBody {
+        self.data.clone()
+    }
     pub fn clear(&mut self) {
         self.data.clear()
     }
@@ -160,6 +163,12 @@ impl Evaluator {
                     Bop::LteBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, <=, "<="),
                     Bop::EqBop => bop!(e1, e2, expr, Value::Number, Value::Boolean, ==, "=")
                 }
+            },
+            Expression::FuncExpr(params, body) => {
+                // Change to a closure value
+                *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.to_owned(), self.env.get_body()));
+                // Return true
+                Ok(true)
             }
             _ => Err("Unimplemented".to_string())
         }
