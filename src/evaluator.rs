@@ -64,12 +64,6 @@ impl Environment {
     pub fn push(&mut self, ident: &String, item: Expression) {
         self.data.push((ident.clone(), item))
     }
-    pub fn pop(&mut self, n: usize) {
-        for _ in 0..n { self.data.pop(); }
-    }
-    pub fn get_body(&self) -> EnvBody {
-        self.data.clone()
-    }
     pub fn clear(&mut self) {
         self.data.clear()
     }
@@ -233,7 +227,6 @@ impl Evaluator {
                 // Always true
                 Ok(true)
             }
-            _ => Err("Unimplemented".to_string())
         }
     }
     fn eval_expr(&mut self, mut expr: Expression) -> Result<Expression, String> {
