@@ -98,10 +98,15 @@ impl Evaluator {
                     Value::Identifier(ident) => match self.env.read(ident) {
                         // Available
                         Some(ex) => {
+                            // Check if available expression is an ident with the same name
+                            let pulled_ident = match &ex {
+                                Expression::ValExpr(Value::Identifier(_)) => true,
+                                _ => false
+                            };
                             // Update self
                             *expr = ex;
-                            // Return true
-                            Ok(true)
+                            // Return
+                            Ok(!pulled_ident)
                         },
                         // Not available, return false
                         _ => Ok(false)
