@@ -51,6 +51,7 @@ macro_rules! bop {
     }
 }
 
+#[derive(Clone)]
 pub struct Environment {
     data: EnvBody
 }
@@ -58,11 +59,6 @@ impl Environment {
     pub fn new() -> Environment {
         Environment {
             data: Vec::new()
-        }
-    }
-    pub fn load(data: EnvBody) -> Environment {
-        Environment {
-            data
         }
     }
     pub fn push(&mut self, ident: &String, item: Expression) {
@@ -166,8 +162,75 @@ impl Evaluator {
             },
             Expression::FuncExpr(params, body) => {
                 // Change to a closure value
-                *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.to_owned(), self.env.get_body()));
+                *expr = Expression::ValExpr(Value::Closure(params.to_owned(), body.clone(), self.env.clone()));
                 // Return true
+                Ok(true)
+            },
+            Expression::ApplicationExpr(alist) => {
+                // Step all items
+                for i in 0..alist.len() {
+                    // Attempt to step item
+                    let e_step = self.step(&mut alist[i])?;
+                    // If was able to step item, return true
+                    if e_step { return Ok(true) };
+                }
+                // Grab first item
+                let first_ref: &Expression = alist.get(0).unwrap();
+                // Check type of first item, return false if not a closure
+                match first_ref {
+                    Expression::ValExpr(v) => match v {
+                        // Is a closure
+                        Value::Closure(params, body, env) => {
+                            // Are there enough arguments to match params?
+                            if alist.len() - 1 < params.len() { return Err("Function not applied to enough parameters".to_string()) }
+                            // Clone closure environment
+                            let mut closure_env = env.clone();
+                            // Push params onto closure env
+                            for i in 0..params.len() {
+                                match &params[i] {
+                                    Some(ident) => {
+                                        closure_env.push(ident, alist[i+1].clone())
+                                    },
+                                    None => ()
+                                }
+                            }
+                            // Application result
+                            let app_result = Expression::EnvExpr(closure_env, Box::new(body.as_ref().clone()));
+                            // Did we use all items in the application chain?
+                            if alist.len() - 1 - params.len() > 0 {
+                                // Updated application chain
+                                let mut alist_new = Vec::new();
+                                // Push first application onto head
+                                alist_new.push(app_result);
+                                // Push rest of chain onto tail
+                                for ex in alist[1 + params.len()..].iter() {
+                                    alist_new.push(ex.clone())
+                                };
+                                // Update expression
+                                *expr = Expression::ApplicationExpr(alist_new);
+                            }
+                            // Done with application chain 
+                            else {
+                                *expr = app_result
+                            }
+                            // Return true
+                            Ok(true)
+                        },
+                        _ => Ok(false)
+                    },
+                    _ => Ok(false)
+                }
+            },
+            Expression::EnvExpr(env, ex) => {
+                // Swap global environment with env
+                std::mem::swap(env, &mut self.env);
+                // Step ex
+                let stepped = self.step(ex.as_mut())?;
+                // Re-swap environments
+                std::mem::swap(env, &mut self.env);
+                // If finished stepping, get rid of envexpr
+                if !stepped { *expr = ex.as_ref().clone() }
+                // Always true
                 Ok(true)
             }
             _ => Err("Unimplemented".to_string())

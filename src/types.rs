@@ -1,5 +1,5 @@
 pub mod ast {
-    use super::eval::EnvBody;
+    use crate::evaluator::Environment;
 
     pub type Ident = Option<String>;
 
@@ -13,6 +13,7 @@ pub mod ast {
         BopExpr(Bop, Box<Expression>, Box<Expression>),
         ApplicationExpr(Vec<Expression>),
         FuncExpr(Vec<Ident>, Box<Expression>),
+        EnvExpr(Environment, Box<Expression>),
         ValExpr(Value)
     }
 
@@ -21,7 +22,7 @@ pub mod ast {
         Identifier(String),
         Number(i128),
         Boolean(bool),
-        Closure(Vec<Ident>, Box<Expression>, EnvBody),
+        Closure(Vec<Ident>, Box<Expression>, Environment),
         Unit
     }
 

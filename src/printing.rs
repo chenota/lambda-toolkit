@@ -193,6 +193,9 @@ fn print_expression(tree: &ast::Expression, level: usize) {
                     "Closure".to_string()
                 }
             })
+        },
+        ast::Expression::EnvExpr(_, e) => {
+            print_expression(e.as_ref(), level)
         }
     }
 }
@@ -298,6 +301,9 @@ pub fn print_grouped_expression(tree: &ast::Expression, outer: bool) {
                     "".to_string()
                 }
             })
+        },
+        ast::Expression::EnvExpr(_, e) => {
+            print_grouped_expression(e.as_ref(), false)
         }
     }
     // Closing paren
